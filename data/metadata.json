@@ -1,0 +1,135 @@
+{
+  "name": "FinTech News Impact Benchmark v1",
+  "version": "v1",
+  "n": 200,
+  "task": "Predict the direction and impact strength of a financial technology news item for a target asset.",
+  "domain": "financial technology news impact",
+  "disclosure": "6551 News Research both maintains this benchmark and submits the in-house newsliquid-1.0-flash leaderboard entry.",
+  "label_schema": {
+    "direction": [
+      "long",
+      "short",
+      "neutral"
+    ],
+    "impact_score": "integer 0-100; event strength for the target asset, not realized future return",
+    "label": "[L|S|N][0-100]"
+  },
+  "scoring": {
+    "output_accuracy": "(direction_accuracy + macro_f1) / 2",
+    "information_rate": "QPS * [-log2(1 - output_accuracy + 0.0001)]",
+    "latency": "single-news end-to-end latency; no batching or cache reuse"
+  },
+  "split": {
+    "public_inputs": "data/test_public.jsonl",
+    "reference_labels": "data/reference_labels.jsonl",
+    "audit_merge": "data/benchmark_with_reference.jsonl"
+  },
+  "field_schema": "docs/SCHEMA.md",
+  "evaluation_protocol": "docs/EVALUATION_PROTOCOL.md",
+  "submission_format": "docs/SUBMISSION_FORMAT.md",
+  "data_file_note": "Use data/test_public.jsonl for inference and evaluation. data/benchmark_with_reference.jsonl includes reference labels and is for audit/analysis only.",
+  "bucket_counts": {
+    "important": 129,
+    "random": 71
+  },
+  "category_counts": {
+    "exchange_listing_delisting": 32,
+    "regulation_legal_etf": 34,
+    "security_risk": 22,
+    "rating_high_other": 50,
+    "market_stress": 33,
+    "tokenomics_protocol": 21,
+    "macro_institutional": 8
+  },
+  "direction_counts": {
+    "short": 45,
+    "long": 99,
+    "neutral": 56
+  },
+  "source_counts_top20": [
+    [
+      "Coindesk",
+      34
+    ],
+    [
+      "Cointelegraph",
+      22
+    ],
+    [
+      "Reuters",
+      18
+    ],
+    [
+      "Twitter",
+      17
+    ],
+    [
+      "The Block",
+      11
+    ],
+    [
+      "bybit",
+      9
+    ],
+    [
+      "coindesk",
+      8
+    ],
+    [
+      "binance",
+      8
+    ],
+    [
+      "News Websites",
+      8
+    ],
+    [
+      "Binance",
+      4
+    ],
+    [
+      "Translation",
+      4
+    ],
+    [
+      "Blogs",
+      3
+    ],
+    [
+      "polymarket",
+      3
+    ],
+    [
+      "coindance_cc",
+      2
+    ],
+    [
+      "realDonaldTrump",
+      2
+    ],
+    [
+      "BWEnews",
+      2
+    ],
+    [
+      "AFP",
+      2
+    ],
+    [
+      "FirstSquawk",
+      2
+    ],
+    [
+      "Bloomberg",
+      2
+    ],
+    [
+      "aster",
+      2
+    ]
+  ],
+  "annotation_note": "Reference labels are human-annotated benchmark test-set labels packaged for scoring.",
+  "rationale_language": "Simplified Chinese",
+  "source_normalization_note": "source and news_type preserve raw feed values and casing; source_counts_top20 is not case-normalized.",
+  "provenance_public_note": "Public files intentionally avoid internal model/provider names."
+}

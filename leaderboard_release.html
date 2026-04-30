@@ -1,0 +1,1165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FinTech News Impact Benchmark v1 — Public Leaderboard Report</title>
+<meta name="description" content="A latency-aware information-rate leaderboard for financial technology news triage models. n=200 single-news items, no batching, no cache." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300..800;1,8..60,300..700&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=STIX+Two+Text:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* near-monochrome academic palette */
+  --paper:        #fcfbf7;   /* warm offwhite, like uncoated paper */
+  --paper-tint:   #f4f2ec;   /* table zebra / inset */
+  --ink:          #14130f;   /* near-black, never pure */
+  --ink-soft:     #4a4843;
+  --ink-faint:    #807c74;
+  --rule:         #c8c4b8;
+  --rule-soft:    #e2dfd5;
+
+  /* the only accent — used for links and table caption labels */
+  --burgundy:     #6b1a23;
+  --burgundy-d:   #4a1219;
+
+  /* fluid type — academic sizes are restrained */
+  --t-fn:    13.5px;            /* footnote */
+  --t-sm:    14.5px;            /* table cells, captions */
+  --t-md:    16.5px;            /* body */
+  --t-lg:    20px;              /* H3 */
+  --t-xl:    27px;              /* H2 */
+  --t-2xl:   38px;              /* H1 - title */
+
+  /* layout */
+  --col:      720px;            /* body column */
+  --col-wide: 1100px;           /* tables, figures */
+  --gut:      24px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{
+  background:var(--paper);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+body{
+  font-family:"Source Serif 4","STIX Two Text", Charter, Cambria, Georgia, serif;
+  font-size:var(--t-md);
+  line-height:1.55;
+  font-feature-settings:"onum","ss01";
+  font-variant-numeric:oldstyle-nums proportional-nums;
+  padding:0 var(--gut);
+}
+
+/* SANS for UI surfaces — table headers, sectional numbers, captions */
+.sans{font-family:"IBM Plex Sans", -apple-system, system-ui, sans-serif}
+.mono{font-family:"IBM Plex Mono", ui-monospace, monospace}
+.tabular{font-variant-numeric:tabular-nums lining-nums}
+.smallcaps{font-variant-caps:all-small-caps;letter-spacing:.06em}
+
+/* —— page header — minimal academic strip —— */
+.page-head{
+  max-width:var(--col-wide);
+  margin:24px auto 0;
+  padding-bottom:8px;
+  border-bottom:.5px solid var(--ink-faint);
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-family:"IBM Plex Sans";
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.page-head .right{font-style:italic;text-transform:none;letter-spacing:0;font-size:12px}
+
+/* —— title block —— */
+.title-block{
+  max-width:var(--col);
+  margin:64px auto 48px;
+  text-align:center;
+}
+.title-block h1{
+  font-family:"Source Serif 4";
+  font-weight:400;
+  font-size:var(--t-2xl);
+  line-height:1.18;
+  letter-spacing:-.005em;
+  font-variation-settings:"opsz" 60;
+  margin-bottom:18px;
+}
+.title-block h1 .sub{
+  display:block;
+  font-style:italic;
+  font-weight:400;
+  font-size:.7em;
+  color:var(--ink-soft);
+  margin-top:.35em;
+}
+.title-block .authors{
+  font-family:"IBM Plex Sans";
+  font-size:14px;
+  color:var(--ink);
+  margin-top:18px;
+  letter-spacing:.01em;
+}
+.title-block .authors .aff{
+  display:block;
+  font-style:italic;
+  color:var(--ink-soft);
+  font-size:13px;
+  margin-top:4px;
+}
+.title-block .meta{
+  font-family:"IBM Plex Sans";
+  font-size:12px;
+  color:var(--ink-faint);
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  margin-top:18px;
+}
+.title-block .meta span + span::before{content:" · ";color:var(--rule)}
+
+/* —— abstract block —— */
+.abstract{
+  max-width:var(--col);
+  margin:0 auto 56px;
+  padding:18px 24px;
+  border-top:.5px solid var(--ink);
+  border-bottom:.5px solid var(--ink);
+  font-size:15.5px;
+  line-height:1.6;
+  color:var(--ink-soft);
+}
+.abstract .lbl{
+  font-family:"IBM Plex Sans";
+  font-weight:600;
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink);
+  margin-right:1em;
+}
+.abstract p + p{margin-top:.7em}
+.abstract strong{color:var(--ink);font-weight:600}
+
+/* —— body sections —— */
+section.body{
+  max-width:var(--col);
+  margin:0 auto;
+  padding:36px 0 12px;
+}
+section.wide{
+  max-width:var(--col-wide);
+  margin:0 auto;
+  padding:36px 0 12px;
+}
+
+h2{
+  font-family:"Source Serif 4";
+  font-weight:500;
+  font-size:var(--t-xl);
+  letter-spacing:-.005em;
+  line-height:1.2;
+  margin-bottom:16px;
+  color:var(--ink);
+  padding-bottom:6px;
+  border-bottom:.5px solid var(--rule);
+}
+h2 .num{
+  font-family:"IBM Plex Sans";
+  font-weight:500;
+  font-size:.55em;
+  letter-spacing:.04em;
+  color:var(--ink-faint);
+  margin-right:.7em;
+  vertical-align:.18em;
+}
+h3{
+  font-family:"Source Serif 4";
+  font-weight:600;
+  font-size:var(--t-lg);
+  letter-spacing:0;
+  margin:28px 0 8px;
+  color:var(--ink);
+}
+h3 .num{
+  font-family:"IBM Plex Sans";
+  font-weight:500;
+  font-size:.7em;
+  color:var(--ink-faint);
+  margin-right:.5em;
+}
+
+p{margin-bottom:14px;color:var(--ink)}
+p strong{font-weight:600;color:var(--ink)}
+p em{font-style:italic;color:var(--ink-soft)}
+
+a, a.ref{
+  color:var(--burgundy);
+  text-decoration:none;
+  border-bottom:.5px solid color-mix(in oklch, var(--burgundy) 40%, transparent);
+}
+a:hover{color:var(--burgundy-d);border-color:var(--burgundy-d)}
+a.ref{
+  font-family:"IBM Plex Sans";
+  font-size:.78em;
+  font-weight:500;
+  vertical-align:super;
+  border-bottom:none;
+  padding:0 .15em;
+}
+
+code, .code{
+  font-family:"IBM Plex Mono";
+  font-size:.88em;
+  background:var(--paper-tint);
+  padding:.05em .35em;
+  border:.5px solid var(--rule-soft);
+  color:var(--ink);
+}
+
+/* —— equations —— */
+.equation{
+  margin:18px auto;
+  padding:14px 18px;
+  text-align:center;
+  font-family:"STIX Two Text", "Source Serif 4", "Cambria Math", serif;
+  font-size:18px;
+  position:relative;
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:24px;
+}
+.equation math{font-family:"STIX Two Text","Source Serif 4",serif;font-size:1.05em}
+.equation .eq-num{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  font-family:"IBM Plex Sans";
+  font-size:12px;
+  color:var(--ink-faint);
+}
+.equation-list{margin:18px 0}
+.equation-list dt{
+  font-family:"IBM Plex Sans";
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+  margin-top:14px;margin-bottom:4px;
+}
+.equation-list dd{padding-left:1.2em;font-size:14.5px;line-height:1.55;color:var(--ink-soft)}
+.equation-list dd .var{font-style:italic;color:var(--ink)}
+
+/* —— captions for figures and tables —— */
+.caption{
+  font-family:"IBM Plex Sans";
+  font-size:13px;
+  line-height:1.5;
+  color:var(--ink-soft);
+  margin:0 0 8px;
+  padding:0;
+  text-align:left;
+}
+.caption .lbl{
+  font-weight:600;
+  color:var(--ink);
+  margin-right:.5em;
+  letter-spacing:.01em;
+}
+.caption .lbl::after{content:""}
+.caption-below{
+  margin-top:10px;margin-bottom:0;
+  text-align:left;
+}
+.caption .note{display:block;margin-top:4px;font-style:italic;font-size:12.5px;color:var(--ink-faint)}
+
+/* —— three-line tables —— */
+table.tlt{
+  width:100%;
+  border-collapse:collapse;
+  font-family:"IBM Plex Sans";
+  font-variant-numeric:tabular-nums lining-nums;
+  font-size:var(--t-sm);
+  margin:0 0 4px;
+}
+table.tlt thead th{
+  font-weight:600;
+  font-size:12px;
+  letter-spacing:.04em;
+  text-transform:none;
+  color:var(--ink);
+  text-align:right;
+  padding:10px 10px 6px;
+  border-bottom:.5px solid var(--ink);
+  vertical-align:bottom;
+  white-space:nowrap;
+}
+table.tlt thead th.left{text-align:left}
+table.tlt thead{border-top:1.5px solid var(--ink)}
+.help{
+  display:inline-block;
+  font-family:"Source Serif 4";font-style:italic;
+  font-size:11px;color:var(--ink-faint);
+  line-height:1;text-align:center;
+  margin-left:.3em;cursor:help;
+  vertical-align:.12em;font-weight:600;
+}
+.help:hover{color:var(--burgundy)}
+table.tlt thead th .unit{
+  display:block;font-weight:400;font-style:italic;
+  font-size:11px;color:var(--ink-faint);margin-top:2px;
+  text-transform:none;letter-spacing:0;
+}
+#lb thead th:nth-child(n+3),
+#lb tbody tr.data > td:nth-child(n+3){
+  padding-right:24px;
+}
+#lb thead th:nth-child(n+3),
+#lb tbody tr.data > td.lat{
+  position:relative;
+}
+#lb thead th:nth-child(n+3) .help,
+#lb tbody tr.data > td.lat .help{
+  position:absolute;
+  right:14px;
+  top:10px;
+  margin-left:0;
+}
+table.tlt tbody{border-bottom:1.5px solid var(--ink)}
+table.tlt tbody tr.data{cursor:pointer;transition:background .12s}
+table.tlt tbody tr.data:hover{background:var(--paper-tint)}
+table.tlt tbody tr.data.active{background:color-mix(in oklch, var(--burgundy) 4%, transparent)}
+table.tlt tbody td{
+  padding:9px 10px;
+  text-align:right;
+  vertical-align:baseline;
+  border:none;
+}
+table.tlt tbody td.left{text-align:left}
+
+table.tlt td.rank{
+  font-family:"Source Serif 4";font-feature-settings:"lnum";
+  font-size:15px;color:var(--ink-soft);
+  width:3em;
+}
+table.tlt td.model{
+  font-family:"Source Serif 4";
+  font-size:15px;font-weight:500;
+  color:var(--ink);
+}
+table.tlt td.model .org{
+  display:block;font-family:"IBM Plex Sans";
+  font-size:11px;color:var(--ink-faint);font-weight:400;
+  font-style:italic;margin-top:1px;
+}
+table.tlt td.model .coi{
+  font-family:"Source Serif 4";color:var(--burgundy);font-weight:600;
+  vertical-align:super;font-size:.7em;margin-left:.15em;
+}
+table.tlt td.score{font-weight:600;color:var(--ink);font-size:14.5px}
+table.tlt td.lat .p99{display:block;color:var(--ink-faint);font-size:11px;font-style:italic;margin-top:1px}
+
+/* expandable annotation row */
+table.tlt tbody tr.notes-row{display:none;background:var(--paper-tint)}
+table.tlt tbody tr.notes-row.open{display:table-row}
+table.tlt tbody tr.notes-row td{
+  padding:14px 22px 18px;
+  text-align:left;
+  font-family:"Source Serif 4";
+  font-size:14.5px;
+  color:var(--ink-soft);
+  line-height:1.55;
+  border-top:.5px dotted var(--rule);
+}
+table.tlt tbody tr.notes-row .grid{
+  display:grid;grid-template-columns:7em 1fr;gap:8px 18px;
+}
+table.tlt tbody tr.notes-row dt{
+  font-family:"IBM Plex Sans";font-size:11px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);
+  padding-top:2px;
+}
+table.tlt tbody tr.notes-row dd .calc{
+  font-family:"IBM Plex Mono";font-size:.88em;color:var(--ink);
+  background:var(--paper);padding:.05em .4em;border:.5px solid var(--rule-soft);
+}
+
+/* —— sort / view controls — minimal inline —— */
+.controls{
+  font-family:"IBM Plex Sans";
+  font-size:12px;
+  color:var(--ink-soft);
+  margin:0 0 10px;
+  display:flex;align-items:baseline;gap:14px;
+}
+.controls .lbl{font-weight:500;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.08em;font-size:11px}
+.controls button{
+  background:transparent;border:none;
+  font-family:inherit;font-size:inherit;color:var(--ink-soft);
+  padding:0;margin:0;cursor:pointer;
+  border-bottom:.5px solid transparent;
+}
+.controls button:hover{color:var(--burgundy)}
+.controls button[aria-pressed="true"]{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
+
+/* —— composition tables — small academic figures —— */
+.fig-row{display:grid;grid-template-columns:1fr 1fr;gap:36px;margin:6px 0 12px}
+@media (max-width:880px){.fig-row{grid-template-columns:1fr}}
+.fig-row .item .caption{margin-top:8px}
+
+/* ASCII-bar via spans for composition (no decorative chartjunk) */
+table.tlt.compact td{padding:5px 10px;font-size:13.5px}
+table.tlt.compact th{font-size:11.5px;padding:6px 10px 4px}
+table.tlt.compact td.bar-cell{width:36%;padding-right:14px}
+.bar-track{
+  position:relative;height:7px;
+  background:var(--rule-soft);
+  border:.5px solid var(--rule);
+}
+.bar-fill{position:absolute;left:0;top:0;bottom:0;background:var(--ink)}
+.bar-fill.muted{background:var(--ink-faint)}
+
+/* —— reference samples — formal example boxes —— */
+.examples{
+  display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:6px;
+}
+@media (max-width:880px){.examples{grid-template-columns:1fr}}
+.example{
+  font-family:"Source Serif 4";
+  font-size:14.5px;
+  line-height:1.5;
+  border:.5px solid var(--rule);
+  padding:14px 16px 16px;
+  background:var(--paper-tint);
+  position:relative;
+}
+.example .ex-id{
+  position:absolute;top:-10px;left:14px;
+  font-family:"IBM Plex Sans";font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);
+  background:var(--paper);padding:0 6px;font-weight:600;
+}
+.example dl{display:grid;grid-template-columns:5.5em 1fr;gap:6px 14px;font-size:13.5px}
+.example dt{font-family:"IBM Plex Sans";font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);padding-top:2px}
+.example dd{color:var(--ink)}
+.example dd.title{font-family:"Source Serif 4";font-size:15.5px;font-weight:500;line-height:1.35;color:var(--ink);font-style:italic}
+.example dd.reason{color:var(--ink-soft)}
+.example dd.commentary{font-style:italic;color:var(--ink-soft);font-size:13px;line-height:1.5;border-top:.5px dotted var(--rule);padding-top:8px;margin-top:4px;grid-column:1 / -1}
+.example .label-tag{
+  font-family:"IBM Plex Mono";font-size:12px;
+  border:.5px solid var(--ink);padding:0 .35em;
+  margin-left:.4em;color:var(--ink);
+}
+.example .dir{
+  font-family:"IBM Plex Sans";font-size:11px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:1px 6px;border:.5px solid var(--ink);color:var(--ink);
+}
+.example .dir.short{color:var(--burgundy);border-color:var(--burgundy)}
+
+/* —— footnotes / references list —— */
+ol.notes{
+  list-style:none;counter-reset:fn;
+  font-size:14px;
+  line-height:1.55;
+  color:var(--ink-soft);
+}
+ol.notes li{
+  counter-increment:fn;
+  padding:8px 0 8px 2.4em;
+  border-top:.5px dotted var(--rule);
+  position:relative;
+}
+ol.notes li:last-child{border-bottom:.5px dotted var(--rule)}
+ol.notes li::before{
+  content:"["counter(fn)"]";
+  position:absolute;left:0;top:8px;
+  font-family:"IBM Plex Sans";font-size:12px;font-weight:600;
+  color:var(--ink);width:2.4em;
+}
+ol.notes li strong{color:var(--ink);font-weight:600}
+ol.notes li code{font-size:.85em}
+
+/* —— inline tooltip —— */
+[data-tip]{position:relative}
+[data-tip]:hover::after{
+  content:attr(data-tip);
+  position:absolute;
+  bottom:calc(100% + 6px);
+  right:0;
+  font-family:"Source Serif 4";font-style:italic;
+  font-size:12.5px;font-weight:400;
+  line-height:1.5;
+  color:var(--paper);
+  background:var(--ink);
+  padding:8px 12px;
+  width:240px;
+  text-align:left;letter-spacing:0;text-transform:none;
+  z-index:99;
+  box-shadow:0 4px 12px -4px rgba(0,0,0,.2);
+}
+
+/* —— colophon —— */
+.colophon{
+  max-width:var(--col-wide);
+  margin:60px auto 36px;
+  border-top:.5px solid var(--ink);
+  padding-top:18px;
+  display:grid;grid-template-columns:1fr 1fr;gap:36px;
+  font-family:"IBM Plex Sans";
+  font-size:12px;line-height:1.6;color:var(--ink-soft);
+}
+@media (max-width:880px){.colophon{grid-template-columns:1fr}}
+.colophon .lbl{
+  display:block;font-weight:600;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink);margin-bottom:8px;
+}
+.colophon .citation{font-family:"Source Serif 4";font-style:italic;font-size:13px;line-height:1.55}
+.colophon ul{list-style:none;font-family:"IBM Plex Mono";font-size:11.5px;line-height:1.7}
+.colophon ul li{display:grid;grid-template-columns:auto 1fr;gap:1em;padding:1px 0}
+.colophon ul li code{background:none;border:none;padding:0;color:var(--ink)}
+.colophon ul li span{color:var(--ink-faint);text-align:right;font-style:italic;font-family:"Source Serif 4";font-size:12px}
+
+.foot-strip{
+  max-width:var(--col-wide);
+  margin:0 auto 24px;
+  padding-top:8px;
+  border-top:.5px solid var(--ink-faint);
+  font-family:"IBM Plex Sans";
+  font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-faint);
+  display:flex;justify-content:space-between;
+}
+
+/* print refinements */
+@media print{
+  body{font-size:10pt}
+  .page-head, .controls{display:none}
+  table.tlt tbody tr.notes-row.open{display:none}
+  section{break-inside:avoid}
+  .equation{break-inside:avoid}
+  table{break-inside:auto}
+  table tr{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ THIN PAGE HEADER ============ -->
+<div class="page-head">
+  <span>News-Impact Benchmark · v1 · Public Release</span>
+  <span class="right">2026-04-26</span>
+</div>
+
+<!-- ============ TITLE BLOCK ============ -->
+<div class="title-block">
+  <h1>
+    FinTech News Impact Benchmark v1
+    <span class="sub">A Latency-Aware Information-Rate Leaderboard for Single-News Triage Models</span>
+  </h1>
+  <div class="authors sans">
+    6551 News Research<sup>†</sup>
+    <span class="aff">In-house benchmark, public release</span>
+  </div>
+  <div class="meta sans">
+    <span>Version 1.0</span>
+    <span>n = 200 single-news items</span>
+    <span>12 models scored</span>
+    <span>Released 26 April 2026</span>
+  </div>
+</div>
+
+<!-- ============ ABSTRACT ============ -->
+<div class="abstract">
+  <p><span class="lbl sans">Abstract</span>We introduce a single-news, latency-aware benchmark for measuring how fast and how accurately a model can interpret a financial technology news item with respect to a target asset. The benchmark contains <strong>n = 200</strong> timestamped news rows drawn from 7 catalyst categories, each annotated with a discrete direction label (<em>long</em> / <em>short</em> / <em>neutral</em>), a 0-100 impact score, and a one-sentence analyst rationale. Models are scored under a strict no-batching, no-cache protocol on an <strong>information-rate</strong> objective <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mi>S</mi><mo>=</mo><mi>QPS</mi><mo>·</mo><mo>[</mo><mo>−</mo><msub><mi>log</mi><mn>2</mn></msub><mo>(</mo><mn>1</mn><mo>−</mo><mi>A</mi><mo>+</mo><mi>ε</mi><mo>)</mo><mo>]</mo></math>, where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mi>A</mi></math> is the mean of direction accuracy and macro-F<sub>1</sub>. The leaderboard combines twelve models spanning specialist news-triage systems, frontier general-purpose models, and small-parameter chat models. We report a mean-P99 latency split alongside the headline score and provide per-row commentary deriving each entry from its underlying components. The leading entry, <code>newsliquid-1.0-flash</code>, achieves <strong>13.290 bits/s</strong> at 72.5% output accuracy and 140.1 ms mean latency; the highest-accuracy entry, <code>kimi-k2.6</code>, reaches 93.1% at 2 057.9 ms mean latency and ranks 8th by information rate. We publish the dataset, reference labels, scoring script, and full results.</p>
+</div>
+
+<!-- ============ §1 INTRODUCTION ============ -->
+<section class="body" id="intro">
+  <h2><span class="num sans">§ 1</span>Introduction</h2>
+  <p>
+    Public LLM leaderboards typically report a single accuracy figure on a held-out test set. For financial-news systems this measure is necessary but insufficient: an interpretation that arrives after the underlying market has already moved is rarely useful, regardless of how correct it is. We therefore propose an <em>information-rate</em> formulation that combines per-call quality and throughput into a single bits-per-second figure, scored under a strict single-news, no-batching, no-cache protocol.
+  </p>
+  <p>
+    The benchmark targets the operational regime of a real-time financial technology news pipeline: a stream of timestamped items, each with one nominally-affected target asset, that must be classified into a directional posture (<em>long</em> / <em>short</em> / <em>neutral</em>) and assigned an event-strength score. Scoring is intentionally indifferent to realised future returns; the reference labels record the analyst-grade interpretation a human reader would assign at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mi>t</mi><mo>=</mo><mn>0</mn></math>, not the realised K-line outcome.<a class="ref" href="#fn-1">[1]</a>
+  </p>
+  <p>
+    The remainder of this report describes the dataset (§2), the scoring methodology and protocol (§3, §4), the leaderboard with per-row analysis (§5), the reference-label schema with worked examples (§6), and the limitations governing legitimate use of the score (§7).
+  </p>
+</section>
+
+<!-- ============ §2 DATASET ============ -->
+<section class="body" id="dataset">
+  <h2><span class="num sans">§ 2</span>Dataset</h2>
+  <p>
+    The benchmark consists of 200 single-news rows. Each row pairs a timestamped news item with a designated <em>target asset</em>, plus a reference label set comprising direction, impact score, packed string label of the form <code>[L|S|N][0-100]</code>, an analyst rationale (Chinese), and an annotator confidence figure. Items are partitioned into two buckets: <em>important</em> (n = 129), drawn to over-represent direct asset-level catalysts; and <em>random</em> (n = 71), sampled to retain coverage of weakly-related news, where the correct label is frequently <em>neutral</em>.
+  </p>
+
+  <div class="fig-row">
+    <div class="item">
+      <p class="caption"><span class="lbl sans">Table 1.</span>Direction distribution across the 200 reference rows. The benchmark is <em>long</em>-skewed; the macro-F<sub>1</sub> term in the scoring objective (§3) is included precisely to prevent a constant-prediction baseline from inflating the headline figure.</p>
+      <table class="tlt compact">
+        <thead>
+          <tr><th class="left">Direction</th><th>Count</th><th>Share</th><th>Bar</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="left">long</td><td>99</td><td>49.5 %</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:49.5%"></div></div></td></tr>
+          <tr><td class="left">neutral</td><td>56</td><td>28.0 %</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill muted" style="width:28%"></div></div></td></tr>
+          <tr><td class="left">short</td><td>45</td><td>22.5 %</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:22.5%"></div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="item">
+      <p class="caption"><span class="lbl sans">Table 2.</span>Bucket partitioning. The <em>important</em> bucket over-represents named-asset catalysts (listings, ETFs, hacks, regulatory actions) that any deployable model must handle; the <em>random</em> bucket preserves coverage of low-signal items.</p>
+      <table class="tlt compact">
+        <thead>
+          <tr><th class="left">Bucket</th><th>Count</th><th>Share</th><th>Bar</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="left">important</td><td>129</td><td>64.5 %</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:64.5%"></div></div></td></tr>
+          <tr><td class="left">random</td><td>71</td><td>35.5 %</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill muted" style="width:35.5%"></div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="caption" style="margin-top:18px">
+    <span class="lbl sans">Table 3.</span>Category coverage. Categories are mutually exclusive at the row level. The skew toward <em>rating-other</em> and <em>regulation/legal/ETF</em> reflects the relative frequency of these catalyst classes in the underlying news feed during the sampling window (Nov 2025 – Apr 2026); macro-only items are intentionally rare.
+  </p>
+  <table class="tlt compact" style="margin-bottom:14px">
+    <thead>
+      <tr><th class="left">Category</th><th>Count</th><th>Share</th><th>Bar</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="left">rating / high-other</td><td>50</td><td>25.0 %</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:50%"></div></div></td></tr>
+      <tr><td class="left">regulation / legal / ETF</td><td>34</td><td>17.0 %</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:34%"></div></div></td></tr>
+      <tr><td class="left">market stress</td><td>33</td><td>16.5 %</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:33%"></div></div></td></tr>
+      <tr><td class="left">exchange listing / delisting</td><td>32</td><td>16.0 %</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:32%"></div></div></td></tr>
+      <tr><td class="left">security risk</td><td>22</td><td>11.0 %</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:22%"></div></div></td></tr>
+      <tr><td class="left">tokenomics / protocol</td><td>21</td><td>10.5 %</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:21%"></div></div></td></tr>
+      <tr><td class="left">macro / institutional</td><td>8</td><td>4.0 %</td><td class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:8%"></div></div></td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    News sources are heterogeneous and reflect the production feed mix. The top six contributing sources are <em>Coindesk</em> (n = 34), <em>Cointelegraph</em> (n = 22), <em>Reuters</em> (n = 18), <em>Twitter / X</em> (n = 17), <em>The Block</em> (n = 11), and <em>Bybit</em> (n = 9), with a long tail of smaller sources (Binance announcements, Translation pipeline, polymarket, BWEnews, DJ, AFP, Bloomberg, FirstSquawk, etc.). The full source breakdown is shipped in <code>data/metadata.json</code>.
+  </p>
+</section>
+
+<!-- ============ §3 METHODOLOGY ============ -->
+<section class="body" id="method">
+  <h2><span class="num sans">§ 3</span>Scoring Methodology</h2>
+  <p>
+    Let <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mover><mi>l</mi><mo>‾</mo></mover></math> denote the mean per-news end-to-end latency in milliseconds, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mi>a</mi></math> the empirical direction accuracy, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>F</mi><mn>1</mn></msub></math> the unweighted mean of the per-class F<sub>1</sub> across the three direction labels. The benchmark reports four primary quantities:
+  </p>
+
+  <div class="equation">
+    <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+      <mi>QPS</mi><mo>=</mo>
+      <mfrac><mn>1000</mn><mover><mi>l</mi><mo>‾</mo></mover></mfrac>
+    </math>
+    <span class="eq-num">(1)</span>
+  </div>
+
+  <div class="equation">
+    <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+      <mi>A</mi><mo>=</mo>
+      <mfrac><mrow><mi>a</mi><mo>+</mo><msub><mi>F</mi><mn>1</mn></msub></mrow><mn>2</mn></mfrac>
+    </math>
+    <span class="eq-num">(2)</span>
+  </div>
+
+  <div class="equation">
+    <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+      <mi>S</mi><mo>=</mo>
+      <mi>QPS</mi><mo>·</mo>
+      <mo>[</mo><mo>−</mo>
+      <msub><mi>log</mi><mn>2</mn></msub>
+      <mo>(</mo><mn>1</mn><mo>−</mo><mi>A</mi><mo>+</mo><mi>ε</mi><mo>)</mo>
+      <mo>]</mo>
+    </math>
+    <span class="eq-num">(3)</span>
+  </div>
+
+  <p>
+    Equation (3) is the <em>information rate</em>, with units of bits per second of correct interpretation. The bracketed surprisal term measures the per-call information content — the number of bits of "non-error" each prediction carries — and the multiplicative <em>QPS</em> term linearly rewards throughput. The constant <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mi>ε</mi><mo>=</mo><mn>0.0001</mn></math> bounds the surprisal at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mo>−</mo><msub><mi>log</mi><mn>2</mn></msub><mo>(</mo><mi>ε</mi><mo>)</mo><mo>≈</mo><mn>13.288</mn></math> bits per call as <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mi>A</mi><mo>→</mo><mn>1</mn></math>, preventing divergence and damping leaderboard sensitivity to the last fraction of accuracy.<a class="ref" href="#fn-3">[3]</a>
+  </p>
+
+  <p>
+    The choice to define <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mi>A</mi></math> as the mean of direction accuracy and macro-F<sub>1</sub> is deliberate. Because the dataset is long-skewed (96 / 60 / 44 across long / neutral / short), a constant-<em>long</em> baseline already attains 48.0 % direction accuracy. Macro-F<sub>1</sub> averages per-class F<sub>1</sub> across the three labels and therefore penalises models that achieve high direction accuracy by collapsing onto the dominant class.<a class="ref" href="#fn-4">[4]</a>
+  </p>
+
+  <p>
+    A third quantity, the mean absolute error of the impact score (MAE), is computed for audit purposes only and is not part of the public score. We retain it because impact-score quality is informative for downstream sizing and routing decisions, but treat it as orthogonal to the headline information rate.
+  </p>
+
+  <h3><span class="num sans">3.1</span>Latency reporting</h3>
+  <p>
+    We report both mean and 99th-percentile single-news latency. The mean drives <em>QPS</em> via Equation (1) and therefore enters the headline score directly. The P99 figure is reported separately and does <em>not</em> enter the score; it surfaces tail-prone serving stacks that a good median can otherwise hide. In production deployments where queue-blocking matters more than average throughput, the practitioner should weight the P99 column more heavily than the rank order suggests.
+  </p>
+</section>
+
+<!-- ============ §4 PROTOCOL ============ -->
+<section class="body" id="protocol">
+  <h2><span class="num sans">§ 4</span>Evaluation Protocol</h2>
+  <p>The protocol governs how a submission is generated and scored. Deviation from any of the five rules below invalidates the run for public-leaderboard purposes.</p>
+  <ol style="padding-left:1.6em;font-size:15.5px;line-height:1.65;color:var(--ink-soft);margin-bottom:14px">
+    <li style="margin-bottom:6px"><strong>One news per request.</strong> Items are processed individually; multi-item batches are not permitted.</li>
+    <li style="margin-bottom:6px"><strong>No response cache.</strong> Caching, deduplication of identical inputs, and reuse of previous outputs are disabled. Each call must traverse the full inference path.</li>
+    <li style="margin-bottom:6px"><strong>Labels withheld until predictions are written.</strong> The reference-label file (<code>data/reference_labels.jsonl</code>) is not loaded until all 200 predictions have been emitted, to prevent leakage.</li>
+    <li style="margin-bottom:6px"><strong>Wall-clock latency, recorded per item.</strong> End-to-end including network round-trip, provider router decisions, and any local serving overhead. Submissions report mean and P99 (with the underlying per-row latency vector available on request).</li>
+    <li style="margin-bottom:6px"><strong>Invalid outputs count as wrong.</strong> Predictions that fail to parse against the schema (or that emit an out-of-vocabulary direction) count as wrong predictions and still consume their full latency.</li>
+  </ol>
+  <p>
+    Submissions must additionally report the <em>serving location</em>, <em>provider route</em>, <em>hardware class</em>, and <em>run date</em>. These metadata are not used in scoring but are essential for reproducibility and for adjudicating cases where two submissions of the same model disagree on latency.<a class="ref" href="#fn-2">[2]</a>
+  </p>
+</section>
+
+<!-- ============ §5 RESULTS — THE STANDINGS TABLE ============ -->
+<section class="wide" id="results">
+  <h2><span class="num sans">§ 5</span>Results</h2>
+
+  <p class="caption">
+    <span class="lbl sans">Table 4.</span>Public leaderboard, ranked by Equation (3). Output accuracy <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mi>A</mi></math> is per Equation (2). Mean and P99 latency are single-news end-to-end. Click any row to expand its derivation. Rows may be re-sorted by accuracy or mean latency using the controls above the table; row numbering reflects the active sort.
+    <span class="note">† denotes a model produced by the benchmark organiser; readers should weigh the entry accordingly. See note <a class="ref" href="#fn-7">[7]</a>.</span>
+  </p>
+
+  <div class="controls sans">
+    <span class="lbl">Sort:</span>
+    <button data-sort="score" aria-pressed="true">information rate ↓</button>
+    <button data-sort="acc" aria-pressed="false">output accuracy ↓</button>
+    <button data-sort="lat" aria-pressed="false">mean latency ↑</button>
+  </div>
+
+  <table class="tlt" id="lb">
+    <thead>
+      <tr>
+        <th class="left" style="width:3em">#</th>
+        <th class="left">Model</th>
+        <th>Information Rate <span class="help" data-tip="Equation (3): QPS · [−log₂(1 − A + ε)]. Composite score combining throughput and per-call quality. Higher is better.">i</span><span class="unit">bits per second</span></th>
+        <th>Output Accuracy <span class="help" data-tip="Equation (2): (direction_accuracy + macro F1) / 2. The class-balanced quality figure that feeds the score. Higher is better.">i</span><span class="unit">A = (acc + F1) / 2</span></th>
+        <th>Mean Latency <span class="help" data-tip="Mean per-news end-to-end wall-clock latency under no-batching, no-cache protocol. P99 reported beneath the mean. Lower is better.">i</span><span class="unit">milliseconds</span></th>
+        <th>Throughput <span class="help" data-tip="Equation (1): 1000 / mean_latency_ms. The throughput term in the information-rate formula.">i</span><span class="unit">news items / s</span></th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <tr class="data" data-rank="1" data-score="13.290" data-acc="72.5" data-lat="140.1" data-qps="7.140">
+        <td class="rank">1</td>
+        <td class="model left">newsliquid-1.0-flash<span class="coi">†</span><span class="org">in-house · news-triage specialist</span></td>
+        <td class="score">13.290</td>
+        <td>72.5 %</td>
+        <td class="lat">140.1<span class="p99">P99 226.2</span></td>
+        <td>7.140</td>
+      </tr>
+      <tr class="notes-row">
+        <td colspan="6">
+          <div class="grid">
+            <dt>Derivation</dt><dd><span class="calc">−log₂(1 − 0.725 + 0.0001) ≈ 1.862 bits</span> per call, multiplied by <span class="calc">QPS = 7.140</span> yields <span class="calc">S = 13.290 bits/s</span>.</dd>
+            <dt>Position</dt><dd>First by information rate; not first by per-call quality. Output accuracy of 72.5 % is below the strongest frontier entries. The win is throughput-driven.</dd>
+            <dt>Tail</dt><dd>P99 / mean = 1.61x. The latency floor is structural, not a sampling artefact.</dd>
+            <dt>Disclosure</dt><dd>This entry is the benchmark organiser's in-house specialist; see footnote [7].</dd>
+          </div>
+        </td>
+      </tr>
+
+      <tr class="data" data-rank="2" data-score="6.530" data-acc="86.3" data-lat="438.9" data-qps="2.279">
+        <td class="rank">2</td>
+        <td class="model left">qwen / qwen3.6-35b-a3b<span class="org">Alibaba · MoE 35B-A3B</span></td>
+        <td class="score">6.530</td>
+        <td>86.3 %</td>
+        <td class="lat">438.9<span class="p99">P99 1075.8</span></td>
+        <td>2.279</td>
+      </tr>
+      <tr class="notes-row">
+        <td colspan="6">
+          <div class="grid">
+            <dt>Derivation</dt><dd><span class="calc">2.279 × −log₂(1 − 0.863 + 0.0001) = 2.279 × 2.867 ≈ 6.530 bits/s</span>.</dd>
+            <dt>Position</dt><dd>The strongest "fast frontier" entry — high accuracy returned in under half a second.</dd>
+            <dt>Tail</dt><dd>P99 / mean = 2.45x.</dd>
+          </div>
+        </td>
+      </tr>
+
+      <tr class="data" data-rank="3" data-score="6.479" data-acc="76.4" data-lat="321.1" data-qps="3.114">
+        <td class="rank">3</td>
+        <td class="model left">zai-org / glm-4.7-flash<span class="org">Z.ai · GLM flash variant</span></td>
+        <td class="score">6.479</td>
+        <td>76.4 %</td>
+        <td class="lat">321.1<span class="p99">P99 445.9</span></td>
+        <td>3.114</td>
+      </tr>
+      <tr class="notes-row">
+        <td colspan="6">
+          <div class="grid">
+            <dt>Derivation</dt><dd><span class="calc">3.114 × −log₂(1 − 0.764 + 0.0001) = 3.114 × 2.083 ≈ 6.479 bits/s</span>.</dd>
+            <dt>Position</dt><dd>Higher QPS than entry 2, lower accuracy. The score gap (6.530 → 6.479) is small because the surprisal term swings: 86.3 % vs 76.4 % is worth roughly +0.8 bits per call.</dd>
+          </div>
+        </td>
+      </tr>
+
+      <tr class="data" data-rank="4" data-score="2.986" data-acc="60.0" data-lat="442.2" data-qps="2.262">
+        <td class="rank">4</td>
+        <td class="model left">qwen3-4b<span class="org">Alibaba · 4B dense</span></td>
+        <td class="score">2.986</td>
+        <td>60.0 %</td>
+        <td class="lat">442.2<span class="p99">P99 542.4</span></td>
+        <td>2.262</td>
+      </tr>
+      <tr class="notes-row">
+        <td colspan="6">
+          <div class="grid">
+            <dt>Derivation</dt><dd><span class="calc">2.262 × −log₂(1 − 0.600 + 0.0001) ≈ 2.262 × 1.322 ≈ 2.986 bits/s</span>.</dd>
+            <dt>Position</dt><dd>Lowest accuracy in the field. Throughput alone cannot rescue the score: at 60.0 % accuracy the surprisal collapses to 1.32 bits/call.</dd>
+          </div>
+        </td>
+      </tr>
+
+      <tr class="data" data-rank="5" data-score="1.983" data-acc="83.8" data-lat="1325.1" data-qps="0.755">
+        <td class="rank">5</td>
+        <td class="model left">gpt-5.4-nano<span class="org">OpenAI · nano</span></td>
+        <td class="score">1.983</td>
+        <td>83.8 %</td>
+        <td class="lat">1325.1<span class="p99">P99 2977.0</span></td>
+        <td>0.755</td>
+      </tr>
+      <tr class="notes-row">
+        <td colspan="6">
+          <div class="grid">
+            <dt>Derivation</dt><dd><span class="calc">0.755 × −log₂(1 − 0.838 + 0.0001) ≈ 0.755 × 2.625 ≈ 1.983 bits/s</span>.</dd>
+            <dt>Tail</dt><dd>P99 / mean = 2.25× — typical of remote serverless inference under variable load.</dd>
+          </div>
+        </td>
+      </tr>
+
+      <tr class="data" data-rank="6" data-score="1.942" data-acc="92.8" data-lat="1949.2" data-qps="0.513">
+        <td class="rank">6</td>
+        <td class="model left">gpt-5.5<span class="org">OpenAI · flagship</span></td>
+        <td class="score">1.942</td>
+        <td>92.8 %</td>
+        <td class="lat">1949.2<span class="p99">P99 3332.3</span></td>
+        <td>0.513</td>
+      </tr>
+      <tr class="notes-row">
+        <td colspan="6">
+          <div class="grid">
+            <dt>Derivation</dt><dd><span class="calc">0.513 × −log₂(1 − 0.928 + 0.0001) ≈ 0.513 × 3.794 ≈ 1.942 bits/s</span>.</dd>
+            <dt>Position</dt><dd>Among the top three by raw accuracy; ranks 6th by information rate due to ~ 2 s mean latency.</dd>
+          </div>
+        </td>
+      </tr>
+
+      <tr class="data" data-rank="7" data-score="1.887" data-acc="90.9" data-lat="1836.2" data-qps="0.545">
+        <td class="rank">7</td>
+        <td class="model left">claude-haiku-4.5<span class="org">Anthropic · Haiku</span></td>
+        <td class="score">1.887</td>
+        <td>90.9 %</td>
+        <td class="lat">1836.2<span class="p99">P99 10022.1</span></td>
+        <td>0.545</td>
+      </tr>
+      <tr class="notes-row">
+        <td colspan="6">
+          <div class="grid">
+            <dt>Derivation</dt><dd><span class="calc">0.545 × −log₂(1 − 0.909 + 0.0001) ≈ 0.545 × 3.456 ≈ 1.887 bits/s</span>.</dd>
+            <dt>Tail</dt><dd>P99 / mean = 5.46x. The mean is acceptable but the tail will block any synchronous queue downstream.</dd>
+          </div>
+        </td>
+      </tr>
+
+      <tr class="data" data-rank="8" data-score="1.876" data-acc="93.1" data-lat="2057.9" data-qps="0.486">
+        <td class="rank">8</td>
+        <td class="model left">kimi-k2.6<span class="org">Moonshot · K2</span></td>
+        <td class="score">1.876</td>
+        <td>93.1 %</td>
+        <td class="lat">2057.9<span class="p99">P99 2753.2</span></td>
+        <td>0.486</td>
+      </tr>
+      <tr class="notes-row">
+        <td colspan="6">
+          <div class="grid">
+            <dt>Derivation</dt><dd><span class="calc">0.486 × −log₂(1 − 0.931 + 0.0001) ≈ 0.486 × 3.855 ≈ 1.876 bits/s</span>.</dd>
+            <dt>Position</dt><dd>Highest output accuracy in this run. Tail is comparatively well-behaved (P99 / mean = 1.34x).</dd>
+          </div>
+        </td>
+      </tr>
+
+      <tr class="data" data-rank="9" data-score="1.642" data-acc="92.9" data-lat="2323.2" data-qps="0.430">
+        <td class="rank">9</td>
+        <td class="model left">claude-opus-4.7<span class="org">Anthropic · Opus 1M</span></td>
+        <td class="score">1.642</td>
+        <td>92.9 %</td>
+        <td class="lat">2323.2<span class="p99">P99 4294.0</span></td>
+        <td>0.430</td>
+      </tr>
+      <tr class="notes-row">
+        <td colspan="6">
+          <div class="grid">
+            <dt>Derivation</dt><dd><span class="calc">0.430 × −log₂(1 − 0.929 + 0.0001) ≈ 0.430 × 3.814 ≈ 1.642 bits/s</span>.</dd>
+            <dt>Position</dt><dd>Very high output accuracy at 92.9 %. Sorting Table 4 by accuracy promotes this row near the top, but not above kimi-k2.6.</dd>
+          </div>
+        </td>
+      </tr>
+
+      <tr class="data" data-rank="10" data-score="0.921" data-acc="91.4" data-lat="3841.4" data-qps="0.260">
+        <td class="rank">10</td>
+        <td class="model left">glm-5.1-fw<span class="org">Z.ai · GLM 5.1 firework</span></td>
+        <td class="score">0.921</td>
+        <td>91.4 %</td>
+        <td class="lat">3841.4 <span class="help" data-tip="Run issued from a unified Japan-region IP via loopback routing. Reported mean and P99 include the additional cross-region network round-trip overhead, not just inference time. See note [9].">i</span><span class="p99">P99 10775.0</span></td>
+        <td>0.260</td>
+      </tr>
+      <tr class="notes-row">
+        <td colspan="6">
+          <div class="grid">
+            <dt>Derivation</dt><dd><span class="calc">0.260 × −log₂(1 − 0.914 + 0.0001) ≈ 0.260 × 3.538 ≈ 0.921 bits/s</span>.</dd>
+            <dt>Tail</dt><dd>P99 = 10.8 s, P99 / mean = 2.80x. Once mean latency exceeds roughly 3 s, even high accuracy cannot recover the score.</dd>
+            <dt>Network</dt><dd>Issued from a unified Japan-region IP via loopback routing; reported latency includes the additional cross-region round-trip overhead and is not a pure model-speed measurement. See note [9].</dd>
+          </div>
+        </td>
+      </tr>
+
+      <tr class="data" data-rank="11" data-score="0.300" data-acc="86.9" data-lat="9771.5" data-qps="0.102">
+        <td class="rank">11</td>
+        <td class="model left">minimax-m2.7<span class="org">MiniMax · M2</span></td>
+        <td class="score">0.300</td>
+        <td>86.9 %</td>
+        <td class="lat">9771.5 <span class="help" data-tip="Run issued from a unified Japan-region IP via loopback routing. Reported mean and P99 include the additional cross-region network round-trip overhead, not just inference time. See note [9].">i</span><span class="p99">P99 23490.3</span></td>
+        <td>0.102</td>
+      </tr>
+      <tr class="notes-row">
+        <td colspan="6">
+          <div class="grid">
+            <dt>Derivation</dt><dd><span class="calc">0.102 × −log₂(1 − 0.869 + 0.0001) ≈ 0.102 × 2.931 ≈ 0.300 bits/s</span>.</dd>
+            <dt>Position</dt><dd>Mean latency near 10 s makes a real-time pipeline impractical regardless of per-call quality.</dd>
+            <dt>Network</dt><dd>Issued from a unified Japan-region IP via loopback routing; reported latency includes the additional cross-region round-trip overhead and is not a pure model-speed measurement. See note [9].</dd>
+          </div>
+        </td>
+      </tr>
+
+      <tr class="data" data-rank="12" data-score="0.184" data-acc="89.0" data-lat="17337.1" data-qps="0.058">
+        <td class="rank">12</td>
+        <td class="model left">qwen3.5-flash<span class="org">Alibaba · 3.5 flash variant</span></td>
+        <td class="score">0.184</td>
+        <td>89.0 %</td>
+        <td class="lat">17337.1 <span class="help" data-tip="Run issued from a unified Japan-region IP via loopback routing. Reported mean and P99 include the additional cross-region network round-trip overhead, not just inference time. See note [9].">i</span><span class="p99">P99 36911.3</span></td>
+        <td>0.058</td>
+      </tr>
+      <tr class="notes-row">
+        <td colspan="6">
+          <div class="grid">
+            <dt>Derivation</dt><dd><span class="calc">0.058 × −log₂(1 − 0.890 + 0.0001) ≈ 0.058 × 3.183 ≈ 0.184 bits/s</span>.</dd>
+            <dt>Caveat</dt><dd>The "flash" descriptor in the model name is inconsistent with the observed serving behaviour for this run (mean 17.3 s, P99 36.9 s). The result more likely reflects routing and rate-limit conditions during the run window than the model's intrinsic speed; a re-run under different conditions is recommended before drawing model-quality conclusions.</dd>
+            <dt>Network</dt><dd>Issued from a unified Japan-region IP via loopback routing; reported latency includes the additional cross-region round-trip overhead and is not a pure model-speed measurement. See note [9].</dd>
+          </div>
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ §6 REFERENCE LABEL EXAMPLES ============ -->
+<section class="body" id="examples">
+  <h2><span class="num sans">§ 6</span>Reference-Label Examples</h2>
+  <p>
+    The reference annotation for each row encodes a directional posture, a 0-100 impact score, an analyst-grade rationale, and an annotator confidence. The four worked examples below are current public benchmark rows covering institutional DeFi liquidity, geopolitical risk, exchange listings, and exchange-ecosystem investment news.
+  </p>
+
+  <div class="examples">
+
+    <div class="example" data-id="cnib-v1-0197">
+      <span class="ex-id sans">cnib-v1-0197</span>
+      <dl>
+        <dt>Source</dt><dd>News Websites / Securitize</dd>
+        <dt>Asset</dt><dd>UNI</dd>
+        <dt>Title</dt><dd class="title">SECURITIZE: Uniswap Labs and Securitize Collaborate to Unlock Liquidity Options for BlackRock's BUIDL</dd>
+        <dt>Direction</dt><dd><span class="dir">LONG</span><span class="label-tag mono">L70</span></dd>
+        <dt>Impact</dt><dd>70 / 100</dd>
+        <dt>Rationale</dt><dd class="reason">BlackRock BUIDL cooperation adds institutional narrative and liquidity expectations for UNI.</dd>
+        <dd class="commentary">A named DeFi protocol is tied to institutional tokenized-fund liquidity. The label is bullish, but below the maximum tier because it is a partnership/liquidity-options catalyst rather than an immediate spot listing or forced-flow event.</dd>
+      </dl>
+    </div>
+
+    <div class="example" data-id="cnib-v1-0198">
+      <span class="ex-id sans">cnib-v1-0198</span>
+      <dl>
+        <dt>Source</dt><dd>Reuters</dd>
+        <dt>Asset</dt><dd>BTC</dd>
+        <dt>Title</dt><dd class="title">Air Raid Sirens Heard in Tel Jerusalem - Reuters Witness<br>Amid Regional<br>Risk Alert</dd>
+        <dt>Direction</dt><dd><span class="dir short">SHORT</span><span class="label-tag mono">S92</span></dd>
+        <dt>Impact</dt><dd>92 / 100</dd>
+        <dt>Rationale</dt><dd class="reason">Jerusalem air-raid sirens are a sudden geopolitical-risk shock, short-term bearish for BTC.</dd>
+        <dd class="commentary">The target is BTC because the row measures market-wide risk interpretation rather than a local token mention. This is intentionally a high-impact short label: the headline is immediate, geopolitical, and Reuters-sourced.</dd>
+      </dl>
+    </div>
+
+    <div class="example" data-id="cnib-v1-0199">
+      <span class="ex-id sans">cnib-v1-0199</span>
+      <dl>
+        <dt>Source</dt><dd>6551News / Binance</dd>
+        <dt>Asset</dt><dd>GIGGLE</dd>
+        <dt>Title</dt><dd class="title">Binance Will List Giggle Fund (GIGGLE) and SynFutures (F) with Seed Tag Applied</dd>
+        <dt>Direction</dt><dd><span class="dir">LONG</span><span class="label-tag mono">L70</span></dd>
+        <dt>Impact</dt><dd>70 / 100</dd>
+        <dt>Rationale</dt><dd class="reason">A Binance listing expands trading access, visibility, and liquidity demand for GIGGLE.</dd>
+        <dd class="commentary">The row is scored against the primary target asset shown in the benchmark input. Seed-tag language keeps the score below the highest listing tier, but the exchange-listing catalyst is still clearly bullish.</dd>
+      </dl>
+    </div>
+
+    <div class="example" data-id="cnib-v1-0200">
+      <span class="ex-id sans">cnib-v1-0200</span>
+      <dl>
+        <dt>Source</dt><dd>6551News / Fortune / OKX</dd>
+        <dt>Asset</dt><dd>OKB</dd>
+        <dt>Title</dt><dd class="title">NYSE Parent Company Invests in Digital Asset Exchange OKX at $25 Billion Valuation</dd>
+        <dt>Direction</dt><dd><span class="dir">LONG</span><span class="label-tag mono">L70</span></dd>
+        <dt>Impact</dt><dd>70 / 100</dd>
+        <dt>Rationale</dt><dd class="reason">Investment by the NYSE parent improves OKX recognition and is sentiment-positive for OKB.</dd>
+        <dd class="commentary">The benchmark maps the exchange-recognition headline to the OKX ecosystem token. The catalyst is positive and high-signal, while the attribution caveat prevents assigning a maximum-impact score.</dd>
+      </dl>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ §7 LIMITATIONS ============ -->
+<section class="body" id="limits">
+  <h2><span class="num sans">§ 7</span>Limitations and Honest Scope</h2>
+  <p>
+    <strong>This is not a pure model-quality ranking.</strong> Latency enters the score by design (Equation 3). Latency in turn is sensitive to network jitter, provider routing, hardware class, GPU load, runtime configuration, and the time-window of the run. Re-running the same model from a different region, on a different day, or under a different rate-limit allocation can shift the bits-per-second figure by a non-trivial amount.<a class="ref" href="#fn-2">[2]</a>
+  </p>
+  <p>
+    <strong>The dataset is short-horizon and financial-technology-specific.</strong> 200 single-news rows, weighted toward direct-asset catalysts (listings, ETFs, hacks, regulatory actions). The benchmark is not a general financial-reasoning benchmark and does not measure realised trading P&amp;L or future K-line movement. The reference labels record the analyst-grade interpretation a human reader would assign at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mi>t</mi><mo>=</mo><mn>0</mn></math>, not the realised market outcome.
+  </p>
+  <p>
+    <strong>A fast specialist can outrank a more accurate frontier model</strong> on this score, by design. For low-urgency or high-stakes review, sort the table by raw accuracy or route uncertain items to a stronger model as a second pass. The score is built for the operational case where timeliness is itself part of the value function; it is not built for the case where the analyst can wait.<a class="ref" href="#fn-6">[6]</a>
+  </p>
+  <p>
+    <strong>Reference labels are human-annotated benchmark test-set labels.</strong> They are the official scoring reference for this public release and are documented in <code>docs/ANNOTATION_GUIDE.md</code>. The labels define an analyst-grade interpretation standard for immediate event impact, not realised future returns.
+  </p>
+  <p>
+    <strong>Public files intentionally avoid internal model and provider names.</strong> Rows in the leaderboard preserve the public model identifier as scored; the in-house specialist is marked with † in Table 4 and disclosed in note [7].
+  </p>
+</section>
+
+<!-- ============ §8 NOTES / REFERENCES ============ -->
+<section class="body" id="notes">
+  <h2><span class="num sans">§ 8</span>Notes and References</h2>
+  <ol class="notes">
+    <li id="fn-1"><strong>Information-rate framing.</strong> The motivation for combining throughput and per-call quality on one axis is operational: a financial-news system that returns a correct interpretation 30 s after the underlying market has moved is rarely as useful as one that returns a mostly-correct interpretation in 200 ms. Equation (3) trades these against each other in units of <em>bits per second of correct interpretation</em>.</li>
+    <li id="fn-2"><strong>Latency is not a pure model property.</strong> Mean and P99 figures are end-to-end wall-clock, including network round-trip, provider router decisions, and any local serving overhead. P99 is reported separately so that a fast median cannot mask a long tail. P99 / mean ratios above ~3× are usually evidence of router or queue effects rather than the model itself.</li>
+    <li id="fn-3"><strong>The role of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mi>ε</mi></math>.</strong> The expression <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mo>−</mo><msub><mi>log</mi><mn>2</mn></msub><mo>(</mo><mn>1</mn><mo>−</mo><mi>A</mi><mo>+</mo><mi>ε</mi><mo>)</mo></math> uses <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mi>ε</mi><mo>=</mo><mn>10</mn><msup><mrow></mrow><mrow><mo>−</mo><mn>4</mn></mrow></msup></math> to keep the surprisal finite as <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mi>A</mi><mo>→</mo><mn>1</mn></math>. The maximum attainable per-call surprisal is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mo>−</mo><msub><mi>log</mi><mn>2</mn></msub><mo>(</mo><mi>ε</mi><mo>)</mo><mo>≈</mo><mn>13.288</mn></math> bits.</li>
+    <li id="fn-4"><strong>Why macro-F<sub>1</sub> in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mi>A</mi></math>.</strong> The reference distribution is 99 long / 56 neutral / 45 short. A constant-<em>long</em> baseline therefore attains 49.5 % direction accuracy without doing useful work. Macro-F<sub>1</sub> averages per-class F<sub>1</sub> across all three labels, so a class-collapse strategy is penalised. Combining both into a single <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mi>A</mi></math> term means the surprisal in Equation (3) cannot be inflated by simply guessing the dominant class.</li>
+    <li id="fn-5"><strong>No batching and no cache.</strong> Submissions process one news item per request, with batching, response caching, and reuse of previous outputs disabled. Reference labels are loaded only after predictions are written. Invalid or unparsable outputs count as wrong predictions and consume their full latency.</li>
+    <li id="fn-6"><strong>Second-pass routing.</strong> A practical production pattern is to use a fast specialist for first-pass triage and to route low-confidence or high-impact items to a slower frontier model (e.g. <em>claude-opus-4.7</em>, <em>gpt-5.5</em>, <em>kimi-k2.6</em>) for verification. The benchmark scores a single model end-to-end and does not reward such a composite system; production deployments should.</li>
+    <li id="fn-7"><strong>Conflict of interest declaration.</strong> The top-ranked entry, <em>newsliquid-1.0-flash</em>, is an in-house specialist developed by the benchmark organiser and tuned for the operational regime the benchmark measures (low-latency single-news triage). Output accuracy of 72.5 % reflects an explicit speed-for-accuracy trade, not a quality ceiling. Readers should weigh this entry's score accordingly and consider sorting Table 4 by raw accuracy as a robustness check.</li>
+    <li id="fn-8"><strong>Package contents.</strong> The full benchmark — input rows, reference labels, scoring script, and the leaderboard tables — is shipped under <code>news_impact_benchmark_v1_public/</code>. See the colophon for an enumerated file list.</li>
+    <li id="fn-9"><strong>Run environment — unified Japan-region IP.</strong> All twelve submissions in Table 4 were issued from a single Japan-region IP via loopback routing to ensure environmental consistency across runs. For models whose primary serving region is not in East Asia (notably the rows flagged with the <em>(i) network</em> tooltip in Table 4: <em>glm-5.1-fw</em>, <em>minimax-m2.7</em>, <em>qwen3.5-flash</em>), the reported mean and P99 latency therefore include an additional cross-region network round-trip overhead and should not be interpreted as a pure measurement of model inference speed. The figures remain comparable as a deployment-realistic measurement under a fixed test environment, but a separate run from a region closer to each provider's primary serving location would likely move these latencies materially downward.</li>
+  </ol>
+</section>
+
+<!-- ============ COLOPHON ============ -->
+<div class="colophon">
+  <div>
+    <span class="lbl">Suggested citation</span>
+    <p class="citation">
+      6551 News Research. <em>FinTech News Impact Benchmark v1: A Latency-Aware Information-Rate Leaderboard for Single-News Triage Models.</em> Public release v1.0, 26 April 2026. n = 200 single-news rows; 99 long / 45 short / 56 neutral; 7 catalyst categories. Information rate <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mi>S</mi><mo>=</mo><mi>QPS</mi><mo>·</mo><mo>[</mo><mo>−</mo><msub><mi>log</mi><mn>2</mn></msub><mo>(</mo><mn>1</mn><mo>−</mo><mi>A</mi><mo>+</mo><mi>ε</mi><mo>)</mo><mo>]</mo></math>, with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mi>A</mi><mo>=</mo><mo>(</mo><mi>a</mi><mo>+</mo><msub><mi>F</mi><mn>1</mn></msub><mo>)</mo><mo>/</mo><mn>2</mn></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><mi>ε</mi><mo>=</mo><mn>0.0001</mn></math>.
+    </p>
+  </div>
+  <div>
+    <span class="lbl">Package contents</span>
+    <ul>
+      <li><code>data/test_public.jsonl</code><span>200 rows · model inputs</span></li>
+      <li><code>data/reference_labels.jsonl</code><span>200 rows · reference labels</span></li>
+      <li><code>data/benchmark_with_reference.jsonl</code><span>audit-only merge</span></li>
+      <li><code>data/metadata.json</code><span>schema and counts</span></li>
+      <li><code>results/leaderboard.csv</code><span>scored runs (CSV)</span></li>
+      <li><code>results/leaderboard.json</code><span>scored runs (JSON)</span></li>
+      <li><code>scripts/evaluate_predictions.py</code><span>local scoring</span></li>
+      <li><code>docs/EVALUATION_PROTOCOL.md</code><span>scoring rules</span></li>
+      <li><code>docs/ANNOTATION_GUIDE.md</code><span>label semantics</span></li>
+      <li><code>docs/SCHEMA.md</code><span>field schema</span></li>
+      <li><code>docs/SUBMISSION_FORMAT.md</code><span>submission format</span></li>
+      <li><code>examples/sample_predictions.jsonl</code><span>format example</span></li>
+      <li><code>LICENSE</code><span>license</span></li>
+      <li><code>CITATION.cff</code><span>citation metadata</span></li>
+    </ul>
+  </div>
+</div>
+
+<div class="foot-strip">
+  <span>News-Impact Benchmark v1 · Public Release · 2026-04-26</span>
+  <span>typeset with Source Serif 4, IBM Plex Sans, IBM Plex Mono</span>
+</div>
+
+<script>
+// —— sort behavior ——
+(function(){
+  var tbody = document.querySelector('#lb tbody');
+  var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr.data'));
+  var pairs = rows.map(function(r){
+    var notes = r.nextElementSibling;
+    return {row:r, notes:notes && notes.classList.contains('notes-row') ? notes : null};
+  });
+
+  function applySort(key){
+    var dir = (key === 'lat') ? 1 : -1;
+    var sorted = pairs.slice().sort(function(a,b){
+      var va = parseFloat(a.row.dataset[key]);
+      var vb = parseFloat(b.row.dataset[key]);
+      return (va - vb) * dir;
+    });
+    var frag = document.createDocumentFragment();
+    sorted.forEach(function(p, i){
+      var rankCell = p.row.querySelector('td.rank');
+      rankCell.textContent = String(i+1);
+      frag.appendChild(p.row);
+      if(p.notes) frag.appendChild(p.notes);
+    });
+    tbody.appendChild(frag);
+  }
+
+  document.querySelectorAll('.controls button').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('.controls button').forEach(function(x){x.setAttribute('aria-pressed','false')});
+      b.setAttribute('aria-pressed','true');
+      applySort(b.dataset.sort);
+    });
+  });
+})();
+
+// —— click-to-expand annotation rows ——
+(function(){
+  document.querySelectorAll('#lb tbody tr.data').forEach(function(row){
+    row.addEventListener('click', function(){
+      var notes = row.nextElementSibling;
+      if(!notes || !notes.classList.contains('notes-row')) return;
+      var open = notes.classList.toggle('open');
+      row.classList.toggle('active', open);
+    });
+  });
+})();
+
+// —— footnote scroll-to with brief highlight ——
+(function(){
+  document.querySelectorAll('a.ref').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var id = a.getAttribute('href');
+      if(!id || !id.startsWith('#')) return;
+      var t = document.querySelector(id);
+      if(!t) return;
+      e.preventDefault();
+      t.scrollIntoView({behavior:'smooth', block:'center'});
+      var orig = t.style.background;
+      t.style.transition = 'background .25s';
+      t.style.background = 'rgba(107,26,35,.08)';
+      setTimeout(function(){t.style.background = orig;}, 1400);
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

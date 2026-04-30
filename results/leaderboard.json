@@ -1,0 +1,249 @@
+{
+  "benchmark": {
+    "name": "FinTech News Impact Benchmark v1",
+    "version": "v1",
+    "n": 200,
+    "task": "Predict the direction and impact strength of a financial technology news item for a target asset.",
+    "domain": "financial technology news impact",
+    "disclosure": "6551 News Research both maintains this benchmark and submits the in-house newsliquid-1.0-flash leaderboard entry.",
+    "label_schema": {
+      "direction": [
+        "long",
+        "short",
+        "neutral"
+      ],
+      "impact_score": "integer 0-100; event strength for the target asset, not realized future return",
+      "label": "[L|S|N][0-100]"
+    },
+    "scoring": {
+      "output_accuracy": "(direction_accuracy + macro_f1) / 2",
+      "information_rate": "QPS * [-log2(1 - output_accuracy + 0.0001)]",
+      "latency": "single-news end-to-end latency; no batching or cache reuse"
+    },
+    "split": {
+      "public_inputs": "data/test_public.jsonl",
+      "reference_labels": "data/reference_labels.jsonl",
+      "audit_merge": "data/benchmark_with_reference.jsonl"
+    },
+    "field_schema": "docs/SCHEMA.md",
+    "evaluation_protocol": "docs/EVALUATION_PROTOCOL.md",
+    "submission_format": "docs/SUBMISSION_FORMAT.md",
+    "data_file_note": "Use data/test_public.jsonl for inference and evaluation. data/benchmark_with_reference.jsonl includes reference labels and is for audit/analysis only.",
+    "bucket_counts": {
+      "important": 129,
+      "random": 71
+    },
+    "category_counts": {
+      "exchange_listing_delisting": 32,
+      "regulation_legal_etf": 34,
+      "security_risk": 22,
+      "rating_high_other": 50,
+      "market_stress": 33,
+      "tokenomics_protocol": 21,
+      "macro_institutional": 8
+    },
+    "direction_counts": {
+      "short": 45,
+      "long": 99,
+      "neutral": 56
+    },
+    "source_counts_top20": [
+      [
+        "Coindesk",
+        34
+      ],
+      [
+        "Cointelegraph",
+        22
+      ],
+      [
+        "Reuters",
+        18
+      ],
+      [
+        "Twitter",
+        17
+      ],
+      [
+        "The Block",
+        11
+      ],
+      [
+        "bybit",
+        9
+      ],
+      [
+        "coindesk",
+        8
+      ],
+      [
+        "binance",
+        8
+      ],
+      [
+        "News Websites",
+        8
+      ],
+      [
+        "Binance",
+        4
+      ],
+      [
+        "Translation",
+        4
+      ],
+      [
+        "Blogs",
+        3
+      ],
+      [
+        "polymarket",
+        3
+      ],
+      [
+        "coindance_cc",
+        2
+      ],
+      [
+        "realDonaldTrump",
+        2
+      ],
+      [
+        "BWEnews",
+        2
+      ],
+      [
+        "AFP",
+        2
+      ],
+      [
+        "FirstSquawk",
+        2
+      ],
+      [
+        "Bloomberg",
+        2
+      ],
+      [
+        "aster",
+        2
+      ]
+    ],
+    "annotation_note": "Reference labels are human-annotated benchmark test-set labels packaged for scoring.",
+    "rationale_language": "Simplified Chinese",
+    "source_normalization_note": "source and news_type preserve raw feed values and casing; source_counts_top20 is not case-normalized.",
+    "provenance_public_note": "Public files intentionally avoid internal model/provider names.",
+    "leaderboard_snapshot_note": "This benchmark block is copied from data/metadata.json so the result file remains self-describing outside the package."
+  },
+  "models": [
+    {
+      "rank": 1,
+      "score_bits_per_second": 13.29,
+      "model": "newsliquid-1.0-flash",
+      "disclosure": "in-house specialist developed by the benchmark organiser",
+      "output_accuracy": "72.5%",
+      "mean_news_latency_ms": 140.1,
+      "p99_news_latency_ms": 226.2,
+      "qps": 7.14
+    },
+    {
+      "rank": 2,
+      "score_bits_per_second": 6.53,
+      "model": "qwen/qwen3.6-35b-a3b",
+      "output_accuracy": "86.3%",
+      "mean_news_latency_ms": 438.9,
+      "p99_news_latency_ms": 1075.8,
+      "qps": 2.279
+    },
+    {
+      "rank": 3,
+      "score_bits_per_second": 6.479,
+      "model": "zai-org/glm-4.7-flash",
+      "output_accuracy": "76.4%",
+      "mean_news_latency_ms": 321.1,
+      "p99_news_latency_ms": 445.9,
+      "qps": 3.114
+    },
+    {
+      "rank": 4,
+      "score_bits_per_second": 2.986,
+      "model": "qwen3-4b",
+      "output_accuracy": "60.0%",
+      "mean_news_latency_ms": 442.2,
+      "p99_news_latency_ms": 542.4,
+      "qps": 2.262
+    },
+    {
+      "rank": 5,
+      "score_bits_per_second": 1.983,
+      "model": "gpt-5.4-nano",
+      "output_accuracy": "83.8%",
+      "mean_news_latency_ms": 1325.1,
+      "p99_news_latency_ms": 2977.0,
+      "qps": 0.755
+    },
+    {
+      "rank": 6,
+      "score_bits_per_second": 1.942,
+      "model": "gpt-5.5",
+      "output_accuracy": "92.8%",
+      "mean_news_latency_ms": 1949.2,
+      "p99_news_latency_ms": 3332.3,
+      "qps": 0.513
+    },
+    {
+      "rank": 7,
+      "score_bits_per_second": 1.887,
+      "model": "claude-haiku-4.5",
+      "output_accuracy": "90.9%",
+      "mean_news_latency_ms": 1836.2,
+      "p99_news_latency_ms": 10022.1,
+      "qps": 0.545
+    },
+    {
+      "rank": 8,
+      "score_bits_per_second": 1.876,
+      "model": "kimi-k2.6",
+      "output_accuracy": "93.1%",
+      "mean_news_latency_ms": 2057.9,
+      "p99_news_latency_ms": 2753.2,
+      "qps": 0.486
+    },
+    {
+      "rank": 9,
+      "score_bits_per_second": 1.642,
+      "model": "claude-opus-4.7",
+      "output_accuracy": "92.9%",
+      "mean_news_latency_ms": 2323.2,
+      "p99_news_latency_ms": 4294.0,
+      "qps": 0.43
+    },
+    {
+      "rank": 10,
+      "score_bits_per_second": 0.921,
+      "model": "glm-5.1-fw",
+      "output_accuracy": "91.4%",
+      "mean_news_latency_ms": 3841.4,
+      "p99_news_latency_ms": 10775.0,
+      "qps": 0.26
+    },
+    {
+      "rank": 11,
+      "score_bits_per_second": 0.3,
+      "model": "minimax-m2.7",
+      "output_accuracy": "86.9%",
+      "mean_news_latency_ms": 9771.5,
+      "p99_news_latency_ms": 23490.3,
+      "qps": 0.102
+    },
+    {
+      "rank": 12,
+      "score_bits_per_second": 0.184,
+      "model": "qwen3.5-flash",
+      "output_accuracy": "89.0%",
+      "mean_news_latency_ms": 17337.1,
+      "p99_news_latency_ms": 36911.3,
+      "qps": 0.058
+    }
+  ]
+}

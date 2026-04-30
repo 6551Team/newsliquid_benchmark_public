@@ -1,0 +1,3 @@
+{"id":"cnib-v1-0001","direction":"short","impact_score":90,"latency_ms":142.7}
+{"id":"cnib-v1-0002","direction":"long","impact_score":85,"latency_ms":139.4}
+{"id":"cnib-v1-0003","direction":"neutral","impact_score":25,"latency_ms":141.9}
